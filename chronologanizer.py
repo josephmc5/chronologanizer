@@ -6,68 +6,10 @@ the year, month, date, and time it was taken.
 Joe McWilliams <github@joemcwilliams.com>
 """
 
-import exifread
-from PIL import Image
 import argparse
 import os
-import re
 import sys
-from datetime import datetime
-
-def getImageDate(path_name):
-    """Returns a date object of the time the picture given was taken."""
-
-    f = open(path_name, 'rb')
-    tags = exifread.process_file(f, stop_tag='Image DateTime')
-    if 'Image DateTime' in tags:
-        # expects format like 2013:11:24 18:38:01
-        try:
-            return datetime.strptime(str(tags['Image DateTime']),'%Y:%m:%d %H:%M:%S')
-        except ValueError:
-            return False
-
-def resize_image(source, destination):
-
-    try:
-        im = Image.open(source)
-        (width, height) = im.size
-
-        if width > height:
-            new_height = 600
-            new_width = (600 * width)/height
-        else:
-            new_width = 600
-            new_height = (600 * height)/width
-
-        im = im.resize((new_width, new_height), Image.ANTIALIAS)
-        im.save(destination, "jpeg", quality = 100)
-    except IOError:
-        print "Unable to resize image: " + source
-
-def copyToDir(file, destination_dir):
-    """
-    Copies the given file into the destination directory with the date structure
-
-    destination directory/year/month/day/time of photo.jpg
-    """
-
-    if (not re.match('.jp[e]?g', os.path.splitext(file)[1], flags=re.IGNORECASE)):
-        return
-
-    date = getImageDate(file)
-
-    if not date:
-        return
-
-    full_destination_path = os.path.join(destination_dir, date.strftime('%Y'), date.strftime('%m') + "-" + date.strftime('%B'))
-
-    if not os.path.exists(full_destination_path):
-        print "Creating " + full_destination_path
-        os.makedirs(full_destination_path)
-
-    resize_image(file, os.path.join(full_destination_path, date.strftime('%B.%d-%I.%M.%S%p.jpg')))
-
-    return True
+from Photo import Photo
 
 def main():
 
@@ -88,7 +30,8 @@ def main():
 
     for root, subFolders, files in os.walk(input_dir):
         for file in files:
-            if not copyToDir(os.path.join(root, file), output_dir):
+            myPhoto = Photo(os.path.join(root, file))
+            if not myPhoto.processAndCopy(output_dir):
                 print "Unable to copy " + file
 
 if __name__ == '__main__':
