@@ -8,18 +8,45 @@ class Photo:
 
     exifTags = None
     fileName = None
+    fileHandle = None
 
     def __init__(self, fileName):
         self.fileName = fileName
 
+    def getFileHandle(self):
+        """Returns Image object if successfull"""
+
+        if self.fileHandle:
+            return self.fileHandle
+
+        try:
+            return Image.open(self.fileName)
+        except IOError:
+            print "Unable to open image: " + self.fileName
+
+    def setFileHandle(self, fileHandle):
+        self.fileHandle = fileHandle
+
+    def save(self, destination):
+        """Takes an Image object and saves it to destination"""
+
+        self.getFileHandle().save(destination, "jpeg", quality = 100)
+
     def getExifTags(self):
 
         if self.exifTags:
-            return exifTags
+            return self.exifTags
 
         f = open(self.fileName, 'rb')
         self.exifTags = exifread.process_file(f)
         return self.exifTags
+
+    def printExifData(self):
+        tags = self.getExifTags()
+
+        for tag in tags.keys():
+            if tag not in ('JPEGThumbnail', 'TIFFThumbnail', 'Filename', 'EXIF MakerNote'):
+                print "Key: %s, value %s" % (tag, tags[tag])
 
     def getDateTaken(self):
         """Returns a date object of the time the picture given was taken."""
@@ -37,26 +64,36 @@ class Photo:
 
         tags = self.getExifTags()
 
-        if 'Orientation' in tags:
-            return str(tags['Orientation'])
+        if 'Image Orientation' in tags:
+            return str(tags['Image Orientation'])
 
-    def resize(self,destination):
+    def correctOrientation(self):
 
-        try:
-            im = Image.open(self.fileName)
-            (width, height) = im.size
+        orientation = self.getOrientation()
 
-            if width > height:
-                new_height = 600
-                new_width = (600 * width)/height
-            else:
-                new_width = 600
-                new_height = (600 * height)/width
+        if '180' in orientation:
+            print "Rotating %s 180 degrees" % self.fileName
+            self.setFileHandle(self.getFileHandle().rotate(180))
+        elif '90' in orientation:
+            print "Rotating %s -90 degrees" % self.fileName
+            self.setFileHandle(self.getFileHandle().rotate(-90))
+        elif '270' in orientation:
+            print "Rotating %s -270 degrees" % self.fileName
+            self.getFileHandle(self.getFileHandle().rotate(-270))
 
-            im = im.resize((new_width, new_height), Image.ANTIALIAS)
-            im.save(destination, "jpeg", quality = 100)
-        except IOError:
-            print "Unable to resize image: " + self.fileName
+    def resize(self):
+
+        im = self.getFileHandle()
+        (width, height) = im.size
+
+        if width > height:
+            new_height = 600
+            new_width = (600 * width)/height
+        else:
+            new_width = 600
+            new_height = (600 * height)/width
+
+        self.setFileHandle(im.resize((new_width, new_height), Image.ANTIALIAS))
 
     def isJpeg(self):
 
@@ -87,7 +124,10 @@ class Photo:
             print "Creating " + full_destination_path
             os.makedirs(full_destination_path)
 
-        self.resize(os.path.join(full_destination_path, date.strftime('%B.%d-%I.%M.%S%p.jpg')))
+        self.resize()
+        self.correctOrientation()
 
+        save_location = os.path.join(full_destination_path, date.strftime('%B-%d_%I.%M.%S%p.jpg'))
+        self.save(save_location)
         return True
 
