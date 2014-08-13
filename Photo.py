@@ -71,14 +71,14 @@ class Photo:
 
         orientation = self.getOrientation()
 
+        if not orientation:
+            return
+
         if '180' in orientation:
-            print "Rotating %s 180 degrees" % self.fileName
             self.setFileHandle(self.getFileHandle().rotate(180))
         elif '90' in orientation:
-            print "Rotating %s -90 degrees" % self.fileName
             self.setFileHandle(self.getFileHandle().rotate(-90))
         elif '270' in orientation:
-            print "Rotating %s -270 degrees" % self.fileName
             self.getFileHandle(self.getFileHandle().rotate(-270))
 
     def resize(self):

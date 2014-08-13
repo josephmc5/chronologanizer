@@ -32,7 +32,7 @@ def main():
         for file in files:
             myPhoto = Photo(os.path.join(root, file))
             if not myPhoto.processAndCopy(output_dir):
-                print "Unable to copy " + file
+                print "Skipping " + file
 
 if __name__ == '__main__':
     main()
