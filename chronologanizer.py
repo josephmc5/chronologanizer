@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Chronologanizer is a simple script to organizer your pictures based on
+Chronologanizer is a simple script to organize your pictures based on
 the year, month, date, and time it was taken.
 
 Joe McWilliams <github@joemcwilliams.com>
