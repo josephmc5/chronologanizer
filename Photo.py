@@ -22,7 +22,7 @@ class Photo:
         try:
             return Image.open(self.fileName)
         except IOError:
-            print "Unable to open image: " + self.fileName
+            print("Unable to open image: " + self.fileName)
 
     def setFileHandle(self, fileHandle):
         self.fileHandle = fileHandle
@@ -46,7 +46,7 @@ class Photo:
 
         for tag in tags.keys():
             if tag not in ('JPEGThumbnail', 'TIFFThumbnail', 'Filename', 'EXIF MakerNote'):
-                print "Key: %s, value %s" % (tag, tags[tag])
+                print("Key: %s, value %s" % (tag, tags[tag]))
 
     def getDateTaken(self):
         """Returns a date object of the time the picture given was taken."""
@@ -121,7 +121,7 @@ class Photo:
         full_destination_path = os.path.join(destination_dir, date.strftime('%Y'), date.strftime('%m') + "-" + date.strftime('%B'))
 
         if not os.path.exists(full_destination_path):
-            print "Creating " + full_destination_path
+            print("Creating " + full_destination_path)
             os.makedirs(full_destination_path)
 
         self.resize()

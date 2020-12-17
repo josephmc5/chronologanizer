@@ -22,17 +22,17 @@ def main():
     output_dir = os.path.normpath(os.path.expanduser(args.output))
 
     if (not os.path.exists(input_dir)):
-        print "Input path does not exist: " + input_dir
+        print("Input path does not exist: " + input_dir)
         sys.exit(1)
 
 
-    print "Looking for pictures in " + input_dir
+    print("Looking for pictures in " + input_dir)
 
     for root, subFolders, files in os.walk(input_dir):
         for file in files:
             myPhoto = Photo(os.path.join(root, file))
             if not myPhoto.processAndCopy(output_dir):
-                print "Skipping " + file
+                print("Skipping " + file)
 
 if __name__ == '__main__':
     main()
